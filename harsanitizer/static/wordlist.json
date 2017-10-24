@@ -1,0 +1,27 @@
+[
+    "state",
+    "shdf",
+    "usg",
+    "password",
+    "email",
+    "code",
+    "code_verifier",
+    "client_secret",
+    "client_id",
+    "token",
+    "access_token",
+    "authenticity_token",
+    "id_token",
+    "appID",
+    "challenge",
+    "facetID",
+    "assertion",
+    "fcParams",
+    "serverData",
+    "Authorization",
+    "auth",
+    "x-client-data",
+    "SAMLRequest",
+    "SAMLResponse"
+    ]
+

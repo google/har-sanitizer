@@ -1,0 +1,13 @@
+.git/
+venv/
+env/
+lib/
+*.pyc
+*.log
+*.har
+*.txt
+*.ipynb
+.ipynb*
+*.zip
+config.json
+
