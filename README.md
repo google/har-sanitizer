@@ -21,7 +21,7 @@ limitations under the License.
 ```
 $ git clone https://github.com/google/har-sanitizer.git
 $ cd har-sanitizer
-$ virtualenv -p [location of python2.7 interpreter] venv --no_site_packages
+$ virtualenv -p [location of python2.7 interpreter] venv --no-site-packages
 $ source venv/bin/activate
 $ pip install -r requirements.txt
 ```
