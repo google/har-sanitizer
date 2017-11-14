@@ -18,20 +18,28 @@
 import os
 import datetime
 import json
+import urllib2
+from flask import Flask, request, Response, render_template, render_template_string
 import decorators
-from flask import Flask, request, Response, render_template
 from harsanitizer import Har, HarSanitizer
 
-from google.cloud import storage
-from google.cloud.storage import Blob
 
-WORDLIST_PATH = "./static/wordlist.json"
+# Config local/remote file locations
+CURRENT_DIR = os.path.abspath("./")
+
+# Load/sanity check config.json
 try:
-  CLOUD_STORAGE_BUCKET = os.environ["CLOUD_STORAGE_BUCKET"]
-  STATIC_URL_PATH = os.environ["STATIC_URL_PATH"]
-  CLOUD_WORDLIST_LOCATION = os.environ["CLOUD_WORDLIST_LOCATION"]
-except Exception:
-  pass
+  with open("./config.json", "r") as config:
+    STATIC_FILES = json.load(config)["static_files"]
+except IOError:
+  raise IOError(
+    "'config.json' not found in '{}'. Please ensure that script is "
+    "being run from root './har-sanitizer/' directory.".format(CURRENT_DIR))
+except KeyError:
+  raise KeyError("'static_files' key not found in config.json")
+
+WORDLIST_PATH = "{}/wordlist.json".format(STATIC_FILES)
+INDEX_PATH = "{}/index.html".format(STATIC_FILES)
 
 # Serialize utility
 def json_serial(obj):
@@ -39,28 +47,18 @@ def json_serial(obj):
   if isinstance(obj, datetime.datetime):
     serial = obj.isoformat()
     return serial
-  raise TypeError("Object not of type datetime.datetime.")
+  raise TypeError("Object not of type datetime.datetime")
 
 app = Flask(__name__)
 
 @app.route("/")
 def index():
-  index_content = ""
-
-  try:
-    gcs = storage.Client()
-    bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
-    blob = bucket.blob(STATIC_URL_PATH + "index.html")
-    index_content = blob.download_as_string()
-  except Exception:
-    pass
-
-  if index_content:
-    return Response(index_content, 200, mimetype="text/html")
+  if STATIC_FILES[:4] == "http":
+    index_html_str = urllib2.urlopen(INDEX_PATH).read()
   else:
-    with open("./config.json", "r") as config:
-      static_files = json.load(config)["static_files"]
-    return render_template("index.html", static_files=static_files)
+    with open(INDEX_PATH, "r") as index_file:
+      index_html_str = index_file.read()
+  return render_template_string(index_html_str, static_files=STATIC_FILES)
 
 @app.route("/get_wordlist", methods=["GET"])
 def get_wordlist():
@@ -68,21 +66,17 @@ def get_wordlist():
   hs = HarSanitizer()
 
   try:
-    wordlist = hs.load_wordlist(wordlist_path=WORDLIST_PATH)
-  except Exception:
-    try:
-      gcs = storage.Client()
-      bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
-      blob = bucket.blob(CLOUD_WORDLIST_LOCATION)
-      wordlist_json = json.loads(blob.download_as_string())
+    if WORDLIST_PATH[:4] == "http":
+      wordlist_json = json.loads(urllib2.urlopen(WORDLIST_PATH).read())
       wordlist = hs.load_wordlist(wordlist=wordlist_json)
-    except Exception:
-      message = {"message": "Error: wordlist.json not found."}
-      data = json.dumps(message, default=json_serial)
-      return Response(data, 500, mimetype="application/json")
+    else:
+      wordlist = hs.load_wordlist(wordlist_path=WORDLIST_PATH)
+  except Exception:
+    message = {"message": "Error: {} not found.".format(WORDLIST_PATH)}
+    data = json.dumps(message, default=json_serial)
+    return Response(data, 500, mimetype="application/json")
 
   data = json.dumps(wordlist, default=json_serial)
-
   return Response(data, 200, mimetype="application/json")
 
 

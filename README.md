@@ -21,71 +21,64 @@ limitations under the License.
 ```
 $ git clone https://github.com/google/har-sanitizer.git
 $ cd har-sanitizer
-$ virtualenv -p [location of python2.7 interpreter] venv --no-site-packages
+$ virtualenv -p $(which python2.7) venv --no-site-packages
 $ source venv/bin/activate
 $ pip install -r requirements.txt
 ```
 
-#### Local Flask site (CLI in root har-sanitizer directory)
+#### Local Flask site (CLI @ root "./har-sanitizer/" directory)
 
-1. If virtual environment not already activated
+1. (If virtual environment not already activated)
 ```
 $ source venv/bin/activate
 ```
 
-2. Change static file location in config.json. Example: (can use local dir as well)
+2. If desired, change static files location in config.json. Examples:
 ```
+{
+  "static_files": "./harsanitizer/static"
+}
+
+-or-
+
 {
   "static_files": "https://storage.googleapis.com/har-sanitizer/static"
 }
+
 ```
 
-3. Change port, debug, and other options in ./harsanitizer/harsan_api.py
+3. Change port, debug, and other options in ./harsanitizer/harsan_api.py under:
+```
+app.run(...)
+```
 
 4. Launch Flask server:
 ```
 $ PYTHONPATH=. python ./harsanitizer/harsan_api.py
 ```
 
-#### Google App Engine Flex Deployment
-1. Create GCS Bucket, set access permissions to public view
+5. Load the Har-Sanitizer web tool by visiting "http://localhost:8080" in Chrome or Firefox (substituting '8080' with the port #, if modified).
 
-2. Add app.yaml to root dir
-
-3. Add the following to app.yaml, changing values as needed:
-```
-runtime: python
-env: flex
-entrypoint: gunicorn -b :$PORT harsanitizer.harsan_api:app
-
-env_variables:
-    CLOUD_STORAGE_BUCKET: [GCS Bucket Name, i.e. 'har-sanitizer']
-    STATIC_URL_PATH: static/
-    CLOUD_WORDLIST_LOCATION: static/wordlist.json
-
-skip_files:
-  - ^(.*/)?venv$
-  - ^(.*/)?.git$
-  - ^(.*/)?.python-version$
-  - ^(.*/)?harfiles$
-  - ^(.*/)?tests$
-  - ^(.*/)?har-sanitizer.log$
-  - ^(.*/)?har_sanitizer_cli.py$
-  - ^(.*/)?ipynb$
-```
-
-4. $ gsutil -m rsync -r ./harsanitizer/static gs://[bucket name]/static
-
-
-5. $ gcloud app deploy
 
 ## Usage
-[API Endpoint: Usage]
+
+#### Web Tool
+
+1. Load HAR JSON file using 'Load HAR' button.
+
+2. Select names of cookies/headers/parameters/content mimetypes to scrub.
+
+3. Preview changes before committing, modifying scrub options as necessary.
+
+4. Export scrubbed HAR file once ready.
+
+#### API Endpoint
+
 * /get_wordlist - Returns default HarSanitizer wordlist.
 
 * /default_mimetype_scrublist - Returns default HarSanitizer mimeTypes scrub list.
 
-* /cookies - Returns all cookie names found in POSTed Har (json). Example (Python):
+* /cookies - Returns all cookie names found in POSTed Har (json). Example (Python w/ 'requests' package):
   ```
   import json, requests
   with open("har_file.har", "r") as har_file:
@@ -135,7 +128,13 @@ skip_files:
 
 1. Implement promises in JS iterEvalExec() calls.
 
-2. Update Python patterns to mimick JS values-based patterns in order to better support foreign Unicode.
+2. Change Python HarSanitizer.get_hartype_names() to write to Har() object passed in argument, not HarSanitizer() instance.  Be sure to update harsan_api.py to reflect changes.
+
+3. Update Python wordlist patterns to mimick JS values-based patterns in order to better support foreign Unicode.
+
+4. Separate 'default_content_scrub_list' out of Python harsanitizer.py into static .json file.
+
+5. Make Javascript load defaultWordList and defaultContentList from static .json files.
 
 #### Contact
 

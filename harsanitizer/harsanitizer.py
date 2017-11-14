@@ -1,20 +1,19 @@
-# Copyright 2017 Google LLC
-#
+"""Scans and sanitzes HAR files containing sensitive information."""
+
+# Copyright 2017, Google Inc.
+# Authors: Garrett Anderson
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#
-#     https://www.apache.org/licenses/LICENSE-2.0
-#
+
+#    http://www.apache.org/licenses/LICENSE-2.0
+
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# Authors: Garrett Anderson
-
-"""Scans and sanitzes HAR files containing sensitive information."""
 
 import os
 
@@ -22,16 +21,22 @@ import json
 import re
 from six import string_types
 
-from google.cloud import storage
-from google.cloud.storage import Blob
 
-WORDLIST_PATH = "./static/wordlist.json"
+# Config local/remote file locations
+CURRENT_DIR = os.path.abspath("./")
+
+# Load/sanity check config.json
 try:
-  CLOUD_STORAGE_BUCKET = os.environ["CLOUD_STORAGE_BUCKET"]
-  PROJECTID = "har-sanitizer"
-  CLOUD_WORDLIST_LOCATION = os.environ["CLOUD_WORDLIST_LOCATION"]
-except Exception:
-  pass
+  with open("./config.json", "r") as config:
+    STATIC_FILES = json.load(config)["static_files"]
+except IOError:
+  raise IOError(
+    "'config.json' not found in '{}'. Please ensure that script is "
+    "being run from root './har-sanitizer/' directory.".format(CURRENT_DIR))
+except KeyError:
+  raise KeyError("KeyError: 'static_files' key not found in config.json")
+
+WORDLIST_PATH = "{}/wordlist.json".format(STATIC_FILES)
 
 
 class Har(object):
@@ -378,18 +383,17 @@ class HarSanitizer(object):
       hartype ['cookies' | 'headers' | 'queryString' | 'params']
       """
       def inner_callback(self, my_iter, key, value):
-        if value in self.har.category[hartype]:
-          self.har.category[hartype][value] += 1
+        if value in har.category[hartype]:
+          har.category[hartype][value] += 1
         else:
-          self.har.category[hartype][value] = 1
+          har.category[hartype][value] = 1
 
       self.iter_eval_exec(
           value,
           {"key == 'name'": inner_callback}
       )
 
-    self.har = har
-    self.har.category[hartype] = {}
+    har.category[hartype] = {}
 
     cond_table = {
         "key == '{}'".format(hartype): outer_callback
@@ -634,14 +638,11 @@ class HarSanitizer(object):
     if not isinstance(har, Har):
       raise TypeError("'har' must be a Har object")
 
-    try:
+    if WORDLIST_PATH[:4] == "http":
+      wordlist_json = json.loads(urllib2.urlopen(WORDLIST_PATH).read())
+      scrub_wordlist = self.load_wordlist(wordlist=wordlist_json)
+    else:
       scrub_wordlist = self.load_wordlist(wordlist_path=WORDLIST_PATH)
-    except Exception:
-      gcs = storage.Client()
-      bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
-      blob = bucket.blob(CLOUD_WORDLIST_LOCATION)
-      default_wordlist = json.loads(blob.download_as_string())
-      scrub_wordlist = self.load_wordlist(wordlist=default_wordlist)
 
     if isinstance(wordlist, list):
       if all(isinstance(word, string_types) for word in wordlist):

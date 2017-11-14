@@ -143,7 +143,7 @@ hsweb.prototype.onPreviewButtonClicked = function(event) {
     this.showPreview(content);
   };
   if (this.formChanged) {
-    // callback would be permanently set after the 1st time if
+    // Callback would be permanently set after the 1st time if
     // not unbound here
     this.changesDialogClose.unbind();
     this.changesDialogConfirm.unbind();
@@ -175,7 +175,7 @@ hsweb.prototype.onExportButtonClicked = function(event) {
   };
 
   if (this.formChanged) {
-    // callback would be permanently set after the 1st time if
+    // Callback would be permanently set after the 1st time if
     // not unbound here
     this.changesDialogClose.unbind();
     this.changesDialogConfirm.unbind();
@@ -239,7 +239,7 @@ hsweb.prototype.scrubHar = function(harJson, wordlist, contentlist) {
   let hs = new HarSanitizer(harJson);
   let contentListConcat = self.defaultContentList.concat(contentlist);
   let wordListConcat = self.defaultWordList.concat(wordlist);
-  // remove duplicate list entries
+  // Remove duplicate list entries
   self.wordList = [...new Set(wordListConcat)];
   self.contentList = [...new Set(contentListConcat)];
 
@@ -354,7 +354,7 @@ hsweb.prototype.getHarData = function (hs) {
     getUrlparams(self),
     getPostparams(self),
     getMimetypes(self)).then(() => {
-      // combine self.urlparams and self.postparams to self.params
+      // Combine self.urlparams and self.postparams to self.params
       try {
         self.params = self.urlparams.concat(self.postparams);
       } catch(err) {
