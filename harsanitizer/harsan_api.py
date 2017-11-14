@@ -19,7 +19,7 @@ import os
 import datetime
 import json
 import urllib2
-from flask import Flask, request, Response, render_template, render_template_string
+from flask import Flask, request, Response, render_template_string
 import decorators
 from harsanitizer import Har, HarSanitizer
 
