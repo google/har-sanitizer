@@ -8,4 +8,4 @@ lib/
 *.ipynb
 .ipynb*
 *.zip
-
+.DS_Store
