@@ -1,12 +1,12 @@
 # HAR Sanitizer
 
 ## Description
-(This is NOT an official Google product)
 
 HAR files are JSON-formatted "recordings" of web traffic activity for a user's browser session, which are often used to troubleshoot web front-ends, REST APIs, authentication issues, etc.  However, HAR files will capture everything in a web session, including passwords, sensitive form information, authentication cookies and headers, and any content embedded in HTTP requests.  This makes HAR files extremely sensitive, and highly prone to privacy breaches if handled incorrectly.
 
 This tool aims to help mitigate these concerns by offering a simple, flexible interface to redact HAR file contents of any potentially sensitive information.  It collects the names and values of all passwords, cookies, headers, URLQuery/POSTData/HTML-Form parameters, and embedded content mimetypes, and redacts values either already known to be sensitive, or those specified by the user.  It currently exists as a both a client-side web tool and Flask REST API.
 
+(This is NOT an official Google product)
 
 ## Installation
 
