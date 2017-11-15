@@ -132,7 +132,7 @@ $ PYTHONPATH=. python ./harsanitizer/harsan_api.py
 
 6. Develop a CLI tool.
 
-#### Contact
+## Contact
 
 Garrett Anderson: 
 * gaanderson@google.com
