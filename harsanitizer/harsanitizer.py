@@ -16,10 +16,10 @@
 # limitations under the License.
 
 import os
-
 import json
 import re
 from six import string_types
+import urllib2
 
 
 # Config local/remote file locations

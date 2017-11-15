@@ -145,6 +145,7 @@ Geoffrey Coulter:
 
 ## License
 Copyright 2017, Google Inc.
+
 Authors: Garrett Anderson
 
 Licensed under the Apache License, Version 2.0 (the "License");

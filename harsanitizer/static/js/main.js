@@ -382,7 +382,7 @@ hsweb.prototype.onLoadedHarData = function() {
     $('#'+key+'-table > tbody').empty();
     $.each(value, (index, element) => {
       let ident = key + '-' + index;
-      // limit list entries to 50 characters or less
+      // Limit list entries to 50 characters or less
       if (element.length >= 50) {
         var elementText = element.slice(0,50) + "...";
       } else {
@@ -403,7 +403,6 @@ hsweb.prototype.onLoadedHarData = function() {
       componentHandler.upgradeDom();
 
       // Strike out default scrub list elements, check others
-
       let elementLower = element.toLowerCase();
       let defaultWordListLower = this.defaultWordList.map(toLower);
       let defaultContentListLower = this.defaultContentList.map(toLower);
