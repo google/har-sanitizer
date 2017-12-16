@@ -19,7 +19,7 @@ import os
 import datetime
 import json
 import urllib2
-from flask import Flask, request, Response, render_template_string
+from flask import Flask, request, Response, render_template_string, send_from_directory
 import decorators
 from harsanitizer import Har, HarSanitizer
 
@@ -41,6 +41,7 @@ except KeyError:
 WORDLIST_PATH = "{}/wordlist.json".format(STATIC_FILES)
 INDEX_PATH = "{}/index.html".format(STATIC_FILES)
 
+
 # Serialize utility
 def json_serial(obj):
   """JSON serializer for datetime.datetime not serializable by default json code."""
@@ -49,7 +50,10 @@ def json_serial(obj):
     return serial
   raise TypeError("Object not of type datetime.datetime")
 
-app = Flask(__name__)
+if STATIC_FILES[:4] != "http":
+  app = Flask(__name__, static_url_path='')
+else:
+  app = Flask(__name__)
 
 @app.route("/")
 def index():
