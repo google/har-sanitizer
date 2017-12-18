@@ -19,7 +19,7 @@ import os
 import datetime
 import json
 import urllib2
-from flask import Flask, request, Response, render_template_string, send_from_directory
+from flask import Flask, url_for, request, Response, render_template_string
 import decorators
 from harsanitizer import Har, HarSanitizer
 
@@ -51,7 +51,7 @@ def json_serial(obj):
   raise TypeError("Object not of type datetime.datetime")
 
 if STATIC_FILES[:4] != "http":
-  app = Flask(__name__, static_url_path='')
+  app = Flask(__name__, static_folder=STATIC_FILES)
 else:
   app = Flask(__name__)
 
@@ -62,7 +62,7 @@ def index():
   else:
     with open(INDEX_PATH, "r") as index_file:
       index_html_str = index_file.read()
-  return render_template_string(index_html_str, static_files=STATIC_FILES)
+  return render_template_string(index_html_str)
 
 @app.route("/get_wordlist", methods=["GET"])
 def get_wordlist():
