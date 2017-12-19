@@ -187,11 +187,12 @@ HarSanitizer.prototype.redactHar = function(scrublist) {
         for (let value of this.harElems[type][key]) {
           let valueFormatted = escapeRegExp(value.toString());
           let regex = ""
-          +"(" + key + "[^{}\\[\\]]*)"
-          +"(\"value\":\"|=)"
-          +"(" + valueFormatted + ")"
+          +"([\" ?&;]{1})"
+          +"(" + key + "[^{}\\[\\]]*){1}"
+          +"(\"value\":\"|=){1}"
+          +"(" + valueFormatted + "){1}"
           +"(\",|\"}|\"]|;|&){1}";
-          let redacted = "$1$2[" + key + " redacted]$4";
+          let redacted = "$1$2$3[" + key + " redacted]$5";
           let re = new RegExp(regex, "g");
           harStrRedacted = harStrRedacted.replace(re, redacted);
           // key/value order flipped regex

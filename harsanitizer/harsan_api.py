@@ -30,16 +30,21 @@ CURRENT_DIR = os.path.abspath("./")
 # Load/sanity check config.json
 try:
   with open("./config.json", "r") as config:
-    STATIC_FILES = json.load(config)["static_files"]
+    STATIC_FOLDER = json.load(config)["static_folder"]
 except IOError:
   raise IOError(
     "'config.json' not found in '{}'. Please ensure that script is "
     "being run from root './har-sanitizer/' directory.".format(CURRENT_DIR))
 except KeyError:
-  raise KeyError("'static_files' key not found in config.json")
+  raise KeyError("'STATIC_FOLDER' key not found in config.json")
 
-WORDLIST_PATH = "{}/wordlist.json".format(STATIC_FILES)
-INDEX_PATH = "{}/index.html".format(STATIC_FILES)
+WORDLIST_PATH = "{}/wordlist.json".format(STATIC_FOLDER)
+# Local STATIC_FOLDER and template config
+if STATIC_FOLDER[:4] != "http":
+  INDEX_PATH = "{}/templates/localhost/index.html".format(STATIC_FOLDER)
+# Remote STATIC_FOLDER and template config
+else:
+  INDEX_PATH = "{}/templates/remotehost/index.html".format(STATIC_FOLDER)
 
 
 # Serialize utility
@@ -50,19 +55,17 @@ def json_serial(obj):
     return serial
   raise TypeError("Object not of type datetime.datetime")
 
-if STATIC_FILES[:4] != "http":
-  app = Flask(__name__, static_folder=STATIC_FILES)
-else:
-  app = Flask(__name__)
+
+app = Flask(__name__)
 
 @app.route("/")
 def index():
-  if STATIC_FILES[:4] == "http":
+  if STATIC_FOLDER[:4] == "http":
     index_html_str = urllib2.urlopen(INDEX_PATH).read()
   else:
     with open(INDEX_PATH, "r") as index_file:
       index_html_str = index_file.read()
-  return render_template_string(index_html_str)
+  return render_template_string(index_html_str, static_files=STATIC_FOLDER)
 
 @app.route("/get_wordlist", methods=["GET"])
 def get_wordlist():

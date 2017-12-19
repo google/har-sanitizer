@@ -1,0 +1,235 @@
+<!-- Copyright 2017, Google Inc.
+Authors: Garrett Anderson
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8" />
+    <title>Har-Sanitizer</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css" />
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="{{ static_files }}/js/harsanitizer.js"></script>
+    <script src="{{ static_files }}/js/main.js"></script>
+
+</head>
+
+<style>
+  .mdl-layout__content {
+    margin: 20px;
+    overflow-x: auto;
+    }
+  .page-content {
+    display: none;
+  }
+  #preview-body {
+    display: none;
+  }
+  #preview-back {
+    display: none;
+  }
+  #help-button {
+    display: none;
+  }
+  .mdl-cell {
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: column;
+    align-items: center;
+  }
+  table {
+    align-items: flex-start;
+    /*overflow: auto;*/
+  }
+  .mdl-cell--bottom {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+  
+  .bottom-buttons {
+    position: fixed;
+    right: 55%;
+    margin-right: -47%;
+    bottom: 5%;
+    /*display: flex;*/
+    display: none;
+    flex-direction: column;
+  }
+
+  .bottom-buttons > button {
+    margin: 3px;
+  }
+
+input[type=file] {
+  display: none;
+}
+
+</style>
+
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+      <!-- Title -->
+      <span class="mdl-layout-title">HAR Sanitizer</span>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation. We hide it in small screens. -->
+      <nav class="mdl-navigation">
+        <form id="upload-form" style="display: none">
+          <input type="file" name="file" id="file-input">
+        </form>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--green mdl-color-text--white" id="load-har">Load HAR</button>
+        <a class="mdl-navigation__link" href="#help" id="help-button">Help</a>
+      </nav>
+    </div>
+  </header>
+
+  <body>
+  <main class="mdl-layout__content mdl-grid">
+    <div id="preview-body">
+        <div class="mdl-cell mdl-cell--2-col" style="align-items: flex-start;">
+          <h3>Preview</h3>
+        </div>
+        <div class="mdl-cell mdl-cell--12-col" style="align-items: flex-start;">
+          <pre id="preview-text"></pre>
+        </div>
+    </div>
+    <div class="mdl-cell mdl-cell--12-col mdl-cell--top">
+      <div class="page-content">
+        <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+          <div id="tabs-bar" class="mdl-tabs__tab-bar">
+            <a href="#cookies-panel" id="cookies-tab" class="mdl-tabs__tab is-active">Cookies</a>
+            <a href="#headers-panel" id="headers-tab" class="mdl-tabs__tab">Headers</a>
+            <a href="#params-panel" id="params-tab" class="mdl-tabs__tab">URLQuery/POSTData Params</a>
+            <a href="#mimetypes-panel" id="mimetypes-tab" class="mdl-tabs__tab">Content mimeTypes</a>
+          </div>
+          <div class="mdl-tabs__panel is-active" id="cookies-panel">
+            <div class="mdl-grid">
+              <div class="mdl-cell mdl-cell--12-col">
+                <table id="cookies-table" class="mdl-data-table mdl-shadow--2dp">
+                  <thead>
+                    <tr>
+                      <th>
+                        <label for="cookies-table-header" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select">
+                          <input type="checkbox" id="cookies-table-header" class="mdl-checkbox__input" />
+                        </label>
+                      </th>
+                      <th class="mdl-data-table__cell--non-numeric">All Cookies</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="mdl-tabs__panel" id="headers-panel">
+            <div class="mdl-grid">
+            <div class="mdl-cell mdl-cell--12-col">
+            <table id="headers-table" class="mdl-data-table mdl-shadow--2dp">
+              <thead>
+                <tr>
+                  <th>
+                    <label for="headers-table-header" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select">
+                      <input id="headers-table-header" type="checkbox" class="mdl-checkbox__input" />
+                    </label>
+                  </th>
+                  <th class="mdl-data-table__cell--non-numeric">All Headers</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+            </div>
+            </div>
+          </div>
+          <div class="mdl-tabs__panel" id="params-panel">
+            <div class="mdl-grid">
+              <div class="mdl-cell mdl-cell--12-col">
+                <table id="params-table" class="mdl-data-table mdl-shadow--2dp">
+                  <thead>
+                    <tr>
+                      <th>
+                        <label for="params-table-header" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select">
+                          <input id="params-table-header" 
+                          type="checkbox" class="mdl-checkbox__input" />
+                        </label>
+                      </th>
+                      <th class="mdl-data-table__cell--non-numeric">All URLQuery/POSTData Parameters</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="mdl-tabs__panel" id="mimetypes-panel">
+            <div class="mdl-grid">
+            <div class="mdl-cell mdl-cell--12-col">
+            <table id="mimetypes-table" class="mdl-data-table mdl-shadow--2dp">
+              <thead>
+                <tr>
+                  <th>
+                    <label for="mimetypes-table-header" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select">
+                      <input id="mimetypes-table-header" type="checkbox" class="mdl-checkbox__input" />
+                    </label>
+                  </th>
+                  <th class="mdl-data-table__cell--non-numeric">All mimeTypes</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mdl-cell mdl-cell--12-col mdl-cell--middle">
+    <div id="tabs-spinner" class="mdl-spinner mdl-js-spinner"></div>
+    </div>
+
+      <div class="mdl-cell mdl-cell--12-col mdl-cell--bottom">
+        <div class="bottom-buttons">
+          <button id="preview" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect"><i class="material-icons">search</i><span class="mdl-tooltip mdl-tooltip--left" data-mdl-for="preview">Preview HAR</span></button>
+          <button id="preview-back" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect"><i class="material-icons">arrow_back</i><span class="mdl-tooltip mdl-tooltip--left" data-mdl-for="preview-back">Go Back</span></button>
+          <button id="scrub" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"><i class="material-icons">build</i><span class="mdl-tooltip mdl-tooltip--left" data-mdl-for="scrub">Apply Changes</span></button>
+          <button id="export" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored mdl-color--indigo"><i class="material-icons">get_app</i><span class="mdl-tooltip mdl-tooltip--left" data-mdl-for="export">Export redacted HAR</span></button>
+        </div>
+      </div>
+
+  <dialog class="mdl-dialog" id="change-dialog">
+    <h4 class="mdl-dialog__title">Apply changes?</h4>
+    <div class="mdl-dialog__content">
+      <p>
+        Do you want to apply changes first?
+      </p>
+    </div>
+    <div class="mdl-dialog__actions">
+      <button type="button" id="change-dialog-confirm" class="mdl-button">Yes</button>
+      <button type="button" id="change-dialog-close" class="mdl-button close">No</button>
+    </div>
+  </dialog>
+  </main>
+  </body>
+</div>

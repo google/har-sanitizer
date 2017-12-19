@@ -28,15 +28,15 @@ CURRENT_DIR = os.path.abspath("./")
 # Load/sanity check config.json
 try:
   with open("./config.json", "r") as config:
-    STATIC_FILES = json.load(config)["static_files"]
+    STATIC_FOLDER = json.load(config)["static_folder"]
 except IOError:
   raise IOError(
     "'config.json' not found in '{}'. Please ensure that script is "
     "being run from root './har-sanitizer/' directory.".format(CURRENT_DIR))
 except KeyError:
-  raise KeyError("KeyError: 'static_files' key not found in config.json")
+  raise KeyError("KeyError: 'STATIC_FOLDER' key not found in config.json")
 
-WORDLIST_PATH = "{}/wordlist.json".format(STATIC_FILES)
+WORDLIST_PATH = "{}/wordlist.json".format(STATIC_FOLDER)
 
 
 class Har(object):
