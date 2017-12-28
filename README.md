@@ -120,17 +120,9 @@ $ PYTHONPATH=. python ./harsanitizer/harsan_api.py
 
 ## TODO
 
-1. Implement promises in JS iterEvalExec() calls.
+1. Needs tests bad.  This should be current priority.  Use pytest and Jasmine.
 
-2. Change Python HarSanitizer.get_hartype_names() to write to Har() object passed in argument, not HarSanitizer() instance.  Be sure to update harsan_api.py to reflect changes.
-
-3. Update Python wordlist patterns to mimick JS values-based patterns in order to better support foreign Unicode.
-
-4. Separate 'default_content_scrub_list' out of Python harsanitizer.py into static .json file.
-
-5. Make Javascript load defaultWordList and defaultContentList from static .json files.
-
-6. Develop a CLI tool.
+2. Other issues are being tracked in Github [issue tracker](https://github.com/google/har-sanitizer/issues).
 
 ## Contact
 
