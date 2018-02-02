@@ -52,9 +52,6 @@ def test_Har_init_invalid_dict(invalid_har):
   with pytest.raises(ValueError):
     har = Har(har=invalid_har)
 
-# @pytest.mark.parametrize("wordlist", [
-#   (['word1', u'word2', 'word3'])
-# ])
 def test_HarSanitizer_load_wordlist():
   """Test successful load wordlist"""
   hs = HarSanitizer()
