@@ -21,8 +21,9 @@ from six import string_types
 
 from harsanitizer.harsanitizer import Har, HarSanitizer
 
+
 def test_Har_init_file():
-  """Tests Har object init with demo.har"""
+  """Tests Har object init with valid demo.har"""
   dir_path = os.path.dirname(os.path.realpath(__file__))
   har_path = dir_path + "/demo.har"
   with open(har_path, "r") as har_file:
@@ -31,8 +32,32 @@ def test_Har_init_file():
   assert isinstance(har, Har)
   assert isinstance(har.har_dict, dict)
 
-
-def test_Har_init_invalid_string():
+@pytest.mark.parametrize("invalid_str", [
+  ("not a har"),
+  ("{'logs': {'entries': 'also not a har'}}")
+])
+def test_Har_init_invalid_string(invalid_str):
   """Tests Har object initialization failure with non-Har string data"""
-  with pytest.raises(AttributeError):
-    har = Har(har="not a har")
+  with pytest.raises(ValueError):
+    har = Har(har=invalid_str)
+
+@pytest.mark.parametrize("invalid_har", [
+  ({"logs": {"entries": "not a har"}}),
+  ({"log": {"not": "a har"}}),
+  ({"log": {"entries": []}}),
+  ({"log": {"entries": [{"not": "a har"}]}}),
+])
+def test_Har_init_invalid_dict(invalid_har):
+  """Tests Har object initialization failure with non-Har dict data"""
+  with pytest.raises(ValueError):
+    har = Har(har=invalid_har)
+
+# @pytest.mark.parametrize("wordlist", [
+#   (['word1', u'word2', 'word3'])
+# ])
+def test_HarSanitizer_load_wordlist():
+  """Test successful load wordlist"""
+  hs = HarSanitizer()
+  word_list = hs.load_wordlist(wordlist=['word1', u'word2', 'word3'])
+  assert isinstance(word_list, list)
+  assert word_list[2] == "word3"

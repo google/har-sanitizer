@@ -60,27 +60,24 @@ class Har(object):
     har: a HAR json either as a str, or a dict
 
   Raises:
-    AttributeError: Failed to load [har]
+    AttributeError: Requires [har] (str or dict)
     TypeError: Invalid HAR provided
     """
 
-
     try:
       if isinstance(har, dict):
-        har_str = json.dumps(har)
-        har_dict = har
+        self.har_str = json.dumps(har)
+        self.har_dict = har
       elif isinstance(har, string_types):
-        har_dict = json.loads(har)
-        har_str = har
-      elif har:
-        raise TypeError
-    except TypeError:
-      raise TypeError("Invalid HAR provided")
+        self.har_dict = json.loads(har)
+        self.har_str = har
+      else:
+        raise ValueError
+      assert("request" in self.har_dict["log"]["entries"][0])
+    except (TypeError, ValueError, AssertionError, KeyError, IndexError):
+      raise ValueError("Missing/Invalid HAR: Requires valid [har] (str or dict)")
     except Exception:
-      raise AttributeError("Requires [har] (str or dict)")
-
-    self.har_dict = har_dict
-    self.har_str = har_str
+      raise
 
 
 class HarSanitizer(object):
@@ -362,6 +359,7 @@ class HarSanitizer(object):
       TypeError: har must be a Har() object
       ValueError: hartype must be one of ['cookies' | 'headers' | 'queryString' | 'params']
     """
+
     if not isinstance(har, Har):
       raise TypeError("'har' must be a Har() object")
 
