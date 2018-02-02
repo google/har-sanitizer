@@ -54,24 +54,16 @@ class Har(object):
     self.category = {}
 
   def load_har(self, har=None, har_path=None):
-    """Loads the har/har_path and sets self.har_str, self.har_dict.
+    """Loads the har and sets self.har_str, self.har_dict.
 
   Args:
     har: a HAR json either as a str, or a dict
-    -or-
-    har_path: file path to a HAR json file (as a str)
 
   Raises:
-    IOError: Failed to open HAR file at har_path
-    AttributeError: Failed to load either [har] or [har_path] args
+    AttributeError: Failed to load [har]
+    TypeError: Invalid HAR provided
     """
 
-    try:
-      with open(har_path, "r") as harfile:
-        har_dict = json.load(harfile)
-        har_str = json.dumps(har_dict)
-    except (IOError, TypeError):
-      pass
 
     try:
       if isinstance(har, dict):
@@ -80,12 +72,12 @@ class Har(object):
       elif isinstance(har, string_types):
         har_dict = json.loads(har)
         har_str = har
+      elif har:
+        raise TypeError
+    except TypeError:
+      raise TypeError("Invalid HAR provided")
     except Exception:
-      if har_path:
-        raise IOError("Cannot open HAR file at path: {}".format(har_path))
-      else:
-        raise AttributeError(
-          "Requires either Har([har] (str or dict)) or Har([har_path](str))")
+      raise AttributeError("Requires [har] (str or dict)")
 
     self.har_dict = har_dict
     self.har_str = har_str
@@ -176,8 +168,8 @@ class HarSanitizer(object):
   """
 
     if not (isinstance(wordlist, list)
-       or isinstance(wordlist_path, string_types)):
-       raise TypeError(
+    or isinstance(wordlist_path, string_types)):
+      raise TypeError(
           "Requires either wordlist_path (str of wordlist file path), "
           "or wordlist (list of strs).")
     elif isinstance(wordlist_path, string_types):

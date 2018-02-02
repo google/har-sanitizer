@@ -1,4 +1,5 @@
 .git/
+.cache/
 venv/
 env/
 lib/
