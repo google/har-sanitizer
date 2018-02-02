@@ -58,3 +58,15 @@ def test_HarSanitizer_load_wordlist():
   word_list = hs.load_wordlist(wordlist=['word1', u'word2', 'word3'])
   assert isinstance(word_list, list)
   assert word_list[2] == "word3"
+
+@pytest.mark.parametrize("invalid_wordlist", [
+  (["what", "is", 12]),
+  ("words words more WORDS"),
+  ({"wordlist": {"list": ["one", "two", "three"]}
+  })
+])
+def test_HarSanitizer_load_wordlist_failure(invalid_wordlist):
+  """Test successful load wordlist"""
+  hs = HarSanitizer()
+  with pytest.raises(TypeError):
+    word_list = hs.load_wordlist(wordlist=invalid_wordlist)

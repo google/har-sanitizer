@@ -164,7 +164,9 @@ class HarSanitizer(object):
       TypeError: wordlist or wordlist_path is incorrect format
   """
 
-    if not (isinstance(wordlist, list)
+    if not (
+      (isinstance(wordlist, list) 
+      and all(isinstance(s, string_types) for s in wordlist))
     or isinstance(wordlist_path, string_types)):
       raise TypeError(
           "Requires either wordlist_path (str of wordlist file path), "
