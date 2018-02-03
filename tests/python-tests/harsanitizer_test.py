@@ -53,7 +53,7 @@ def test_Har_init_invalid_dict(invalid_har):
     har = Har(har=invalid_har)
 
 def test_HarSanitizer_load_wordlist():
-  """Test successful load wordlist"""
+  """Test successful HarSantizer.load_wordlist()"""
   hs = HarSanitizer()
   word_list = hs.load_wordlist(wordlist=['word1', u'word2', 'word3'])
   assert isinstance(word_list, list)
@@ -66,7 +66,19 @@ def test_HarSanitizer_load_wordlist():
   })
 ])
 def test_HarSanitizer_load_wordlist_failure(invalid_wordlist):
-  """Test successful load wordlist"""
+  """Test unsuccessful HarSantizer.load_wordlist()"""
   hs = HarSanitizer()
   with pytest.raises(TypeError):
     word_list = hs.load_wordlist(wordlist=invalid_wordlist)
+
+def test_HarSanitizer_trim_wordlist():
+  """Test HarSanitizer.trim_wordlist()."""
+  hs = HarSanitizer()
+  wordlist = ["one", "two", "three"]
+  test_str = "Hello I have one thing, not two."
+  result = ['one', 'two']
+  fake_json = {"log": {"entries": [{"request": {"one": "two"}}]}}
+  har = Har(har=fake_json)
+
+  trimlist = hs.trim_wordlist(har=har, wordlist=wordlist)
+  assert trimlist == result
