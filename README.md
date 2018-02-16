@@ -127,9 +127,7 @@ $ PYTHONPATH=. python ./harsanitizer/harsan_api.py
 ## Contact
 
 Garrett Anderson: 
-* gaanderson@google.com
-
-* jga@nulldestinations.com
+* garrett@nulldestinations.com
 
 Greg Cochard: 
 * gcochard@google.com
