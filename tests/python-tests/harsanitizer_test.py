@@ -30,9 +30,11 @@ def client():
   """Flask application pytest fixture"""
   test_client = app.test_client()
 
-
   return test_client
 
+def response_json(response):
+  """Decode json from response"""
+  return json.loads(response.data.decode('utf8'))
 
 def test_Har_init_file():
   """Tests Har object init with valid demo.har"""
@@ -99,3 +101,4 @@ def test_GET_wordlist(client):
   """Test API GET default scrub wordlist"""
   response = client.get("/get_wordlist")
   assert response.status_code == 200
+  #TODO: insert something here to test the json response
