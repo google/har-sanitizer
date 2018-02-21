@@ -15,11 +15,23 @@
 
 import os
 import json
-
-import pytest
 from six import string_types
 
+import pytest
+
+import requests
+from flask import url_for
+
 from harsanitizer.harsanitizer import Har, HarSanitizer
+from harsanitizer.harsan_api import app
+
+@pytest.fixture
+def client():
+  """Flask application pytest fixture"""
+  test_client = app.test_client()
+
+
+  return test_client
 
 
 def test_Har_init_file():
@@ -76,9 +88,14 @@ def test_HarSanitizer_trim_wordlist():
   hs = HarSanitizer()
   wordlist = ["one", "two", "three"]
   test_str = "Hello I have one thing, not two."
-  result = ['one', 'two']
+  result = ["one", "two"]
   fake_json = {"log": {"entries": [{"request": {"one": "two"}}]}}
   har = Har(har=fake_json)
 
   trimlist = hs.trim_wordlist(har=har, wordlist=wordlist)
   assert trimlist == result
+
+def test_GET_wordlist(client):
+  """Test API GET default scrub wordlist"""
+  response = client.get("/get_wordlist")
+  assert response.status_code == 200

@@ -56,6 +56,7 @@ def json_serial(obj):
   raise TypeError("Object not of type datetime.datetime")
 
 
+
 app = Flask(__name__)
 
 @app.route("/")
@@ -207,6 +208,7 @@ def scrub():
 
   data = json.dumps(sanitized_har.har_dict, indent=2, separators=(",", ": "))
   return Response(data, 200, mimetype="text/plain")
+
 
 if __name__ == "__main__":
   app.run(host="0.0.0.0", port=8080, debug=False)
