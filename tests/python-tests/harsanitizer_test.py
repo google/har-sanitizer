@@ -105,5 +105,5 @@ def test_GET_wordlist(client):
   data = response_json(response)
   assert response.status_code == 200
   assert isinstance(data, list)
-  assert all(isinstance(item, string_types) for item in data)
+  assert all(isinstance(item, basestring) for item in data)
 

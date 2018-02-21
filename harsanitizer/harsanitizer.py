@@ -18,7 +18,6 @@
 import os
 import json
 import re
-from six import string_types
 import urllib2
 
 
@@ -68,7 +67,7 @@ class Har(object):
       if isinstance(har, dict):
         self.har_str = json.dumps(har)
         self.har_dict = har
-      elif isinstance(har, string_types):
+      elif isinstance(har, basestring):
         self.har_dict = json.loads(har)
         self.har_str = har
       else:
@@ -166,12 +165,12 @@ class HarSanitizer(object):
 
     if not (
       (isinstance(wordlist, list) 
-      and all(isinstance(s, string_types) for s in wordlist))
-    or isinstance(wordlist_path, string_types)):
+      and all(isinstance(s, basestring) for s in wordlist))
+    or isinstance(wordlist_path, basestring)):
       raise TypeError(
           "Requires either wordlist_path (str of wordlist file path), "
           "or wordlist (list of strs).")
-    elif isinstance(wordlist_path, string_types):
+    elif isinstance(wordlist_path, basestring):
       try:
         with open(wordlist_path, "r") as wordlist_f:
           wordlist = json.load(wordlist_f)
@@ -524,7 +523,7 @@ class HarSanitizer(object):
     default_mimetypes = [elem['value_to_match'] for elem in self.default_content_scrub_list]
 
     if content_list:
-      content_list = [obj for obj in content_list if isinstance(obj,string_types)]
+      content_list = [obj for obj in content_list if isinstance(obj,basestring)]
       new_scrub_list = [{
         "key_to_match": "mimeType",
         "value_to_match": mimetype,
@@ -637,7 +636,7 @@ class HarSanitizer(object):
       scrub_wordlist = self.load_wordlist(wordlist_path=WORDLIST_PATH)
 
     if isinstance(wordlist, list):
-      if all(isinstance(word, string_types) for word in wordlist):
+      if all(isinstance(word, basestring) for word in wordlist):
         scrub_wordlist.extend(wordlist)
       else:
         raise TypeError("All words in wordlist must be strings")
