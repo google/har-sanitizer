@@ -97,8 +97,13 @@ def test_HarSanitizer_trim_wordlist():
   trimlist = hs.trim_wordlist(har=har, wordlist=wordlist)
   assert trimlist == result
 
+## REST API Tests
+## TODO: Put these into their own file/class
 def test_GET_wordlist(client):
   """Test API GET default scrub wordlist"""
   response = client.get("/get_wordlist")
+  data = response_json(response)
   assert response.status_code == 200
-  #TODO: insert something here to test the json response
+  assert isinstance(data, list)
+  assert all(isinstance(item, string_types) for item in data)
+
