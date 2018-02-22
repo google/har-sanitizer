@@ -39,6 +39,7 @@ except KeyError:
   raise KeyError("'STATIC_FOLDER' key not found in config.json")
 
 WORDLIST_PATH = "{}/wordlist.json".format(STATIC_FOLDER)
+MIMETYPES_PATH = "{}/mimetypesScrubList.json".format(STATIC_FOLDER)
 # Local STATIC_FOLDER and template config
 if STATIC_FOLDER[:4] != "http":
   INDEX_PATH = "{}/templates/localhost/index.html".format(STATIC_FOLDER)
@@ -93,11 +94,18 @@ def get_mimetype_scrublist():
   """Returns default HarSanitizer mimeTypes scrub list."""
   hs = HarSanitizer()
 
-  content_list = [content["value_to_match"] for content
-                  in hs.default_content_scrub_list]
+  try:
+    if MIMETYPES_PATH[:4] == "http":
+      mimetype_scrub_list = json.loads(urllib2.urlopen(MIMETYPES_PATH).read())
+    else:
+      with open(MIMETYPES_PATH, "r") as mimetypes_file:
+        mimetype_scrub_list = json.load(mimetypes_file)
+  except Exception:
+    message = {"message": "Error: {} not found.".format(MIMETYPES_PATH)}
+    data = json.dumps(message, default=json_serial)
+    return Response(data, 500, mimetype="application/json")
 
-  data = json.dumps(content_list, default=json_serial)
-
+  data = json.dumps(mimetype_scrub_list, default=json_serial)
   return Response(data, 200, mimetype="application/json")
 
 

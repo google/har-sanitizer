@@ -36,6 +36,7 @@ except KeyError:
   raise KeyError("KeyError: 'STATIC_FOLDER' key not found in config.json")
 
 WORDLIST_PATH = "{}/wordlist.json".format(STATIC_FOLDER)
+MIMETYPES_PATH = "{}/mimetypesScrubList.json".format(STATIC_FOLDER)
 
 
 class Har(object):
@@ -107,35 +108,6 @@ class HarSanitizer(object):
 
   # Class variables
   valid_hartypes = ["cookies", "headers", "queryString", "params"]
-
-  # mimeTypes that must be scrubbed to prevent wordlist regex patterns from breaking
-  default_content_scrub_list = [
-      {
-          "key_to_match": "mimeType",
-          "value_to_match": "application/javascript",
-          "key_to_redact": "text"
-      },
-      {
-          "key_to_match": "mimeType",
-          "value_to_match": "text/javascript",
-          "key_to_redact": "text"
-      },
-      {
-          "key_to_match": "mimeType",
-          "value_to_match": "text/html",
-          "key_to_redact": "text"
-      },
-      {
-          "key_to_match": "mimeType",
-          "value_to_match": "text/css",
-          "key_to_redact": "text"
-      },
-      {
-          "key_to_match": "mimeType",
-          "value_to_match": "text/xml",
-          "key_to_redact": "text"
-      },
-      ]
 
   def __init__(self, har=None):
     super(HarSanitizer, self).__init__()
@@ -520,7 +492,9 @@ class HarSanitizer(object):
 
     # Gets rid of troublesome js/html/css/base64/etc text.
     content_scrub_list = self.default_content_scrub_list[:]
-    default_mimetypes = [elem['value_to_match'] for elem in self.default_content_scrub_list]
+    with open(MIMETYPES_PATH, "r") as mimetypes_file:
+        default_mimetypes = json.load(mimetypes_file)
+    # default_mimetypes = [elem['value_to_match'] for elem in self.default_content_scrub_list]
 
     if content_list:
       content_list = [obj for obj in content_list if isinstance(obj,basestring)]

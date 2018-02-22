@@ -15,7 +15,6 @@
 
 import os
 import json
-from six import string_types
 
 import pytest
 
@@ -99,9 +98,13 @@ def test_HarSanitizer_trim_wordlist():
 
 ## REST API Tests
 ## TODO: Put these into their own file/class
-def test_GET_wordlist(client):
-  """Test API GET default scrub wordlist"""
-  response = client.get("/get_wordlist")
+@pytest.mark.parametrize("list_endpoint", [
+  ("/get_wordlist"),
+  ("/default_mimetype_scrublist")
+])
+def test_GET_lists(client, list_endpoint):
+  """Test API GET default scrub wordlist and mimtypes scrub list"""
+  response = client.get(list_endpoint)
   data = response_json(response)
   assert response.status_code == 200
   assert isinstance(data, list)
