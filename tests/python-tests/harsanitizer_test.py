@@ -97,16 +97,35 @@ def test_HarSanitizer_trim_wordlist():
   assert trimlist == result
 
 ## REST API Tests
-## TODO: Put these into their own file/class
-@pytest.mark.parametrize("list_endpoint", [
+@pytest.mark.parametrize("endpoint", [
   ("/get_wordlist"),
   ("/default_mimetype_scrublist")
 ])
-def test_GET_lists(client, list_endpoint):
+def test_GET_lists(client, endpoint):
   """Test API GET default scrub wordlist and mimtypes scrub list"""
-  response = client.get(list_endpoint)
+  response = client.get(endpoint)
   data = response_json(response)
   assert response.status_code == 200
   assert isinstance(data, list)
   assert all(isinstance(item, basestring) for item in data)
 
+@pytest.mark.parametrize("endpoint,expected", [
+  ("/cookies", ["cookie_a", "cookie_b"]),
+  ("/headers", ["header_a"]),
+  ("/params", ["query"]),
+  ("/mimetypes", ["text/javascript"])
+])
+def test_POST_lists(client, endpoint, expected):
+  """Test API POST request for HAR cookies, headers, params, etc"""
+  dir_path = os.path.dirname(os.path.realpath(__file__))
+  har_path = dir_path + "/demo.har"
+  with open(har_path, "r") as har_file:
+    har = json.load(har_file)
+  response = client.post(
+    endpoint,
+    data=json.dumps(har),
+    headers={"Content-Type": "application/json"})
+  data = response_json(response)
+
+  assert response.status_code == 200
+  # assert data == expected
