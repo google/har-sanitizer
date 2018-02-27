@@ -128,4 +128,4 @@ def test_POST_lists(client, endpoint, expected):
   data = response_json(response)
 
   assert response.status_code == 200
-  # assert data == expected
+  assert all([item in expected for item in data])
