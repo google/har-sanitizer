@@ -24,16 +24,20 @@ from flask import url_for
 from harsanitizer.harsanitizer import Har, HarSanitizer
 from harsanitizer.harsan_api import app
 
-@pytest.fixture
-def client():
-  """Flask application pytest fixture"""
-  test_client = app.test_client()
-
-  return test_client
+PORT = 8080
+HOST = "localhost"
+HOSTURL = "http://{}:{}".format(HOST, PORT)
 
 def response_json(response):
   """Decode json from response"""
   return json.loads(response.data.decode('utf8'))
+
+@pytest.fixture
+def client():
+  """Flask application pytest fixture"""
+  test_client = app.test_client()
+  
+  return test_client
 
 def test_Har_init_file():
   """Tests Har object init with valid demo.har"""
@@ -121,11 +125,14 @@ def test_POST_lists(client, endpoint, expected):
   har_path = dir_path + "/demo.har"
   with open(har_path, "r") as har_file:
     har = json.load(har_file)
+  headers = {"Content-Type": "application/json"}
   response = client.post(
     endpoint,
     data=json.dumps(har),
-    headers={"Content-Type": "application/json"})
+    headers=headers)
   data = response_json(response)
 
   assert response.status_code == 200
+  assert len(data) == len(expected)
   assert all([item in expected for item in data])
+
