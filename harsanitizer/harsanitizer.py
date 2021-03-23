@@ -20,6 +20,10 @@ import json
 import re
 import urllib2
 
+try:
+  basestring
+except NameError:
+  basestring = str
 
 # Config local/remote file locations
 CURRENT_DIR = os.path.abspath("./")
