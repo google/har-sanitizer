@@ -24,6 +24,11 @@ from flask import url_for
 from harsanitizer.harsanitizer import Har, HarSanitizer
 from harsanitizer.harsan_api import app
 
+try:
+  basestring
+except NameError:
+  basestring = str
+
 PORT = 8080
 HOST = "localhost"
 HOSTURL = "http://{}:{}".format(HOST, PORT)
