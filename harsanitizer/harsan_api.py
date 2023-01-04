@@ -18,7 +18,7 @@
 import os
 import datetime
 import json
-import urllib2
+from urllib.request import urlopen
 from flask import Flask, url_for, request, Response, render_template_string
 import decorators
 from harsanitizer import Har, HarSanitizer
@@ -63,7 +63,7 @@ app = Flask(__name__)
 @app.route("/")
 def index():
   if STATIC_FOLDER[:4] == "http":
-    index_html_str = urllib2.urlopen(INDEX_PATH).read()
+    index_html_str = urlopen(INDEX_PATH).read()
   else:
     with open(INDEX_PATH, "r") as index_file:
       index_html_str = index_file.read()
@@ -76,7 +76,7 @@ def get_wordlist():
 
   try:
     if WORDLIST_PATH[:4] == "http":
-      wordlist_json = json.loads(urllib2.urlopen(WORDLIST_PATH).read())
+      wordlist_json = json.loads(urlopen(WORDLIST_PATH).read())
       wordlist = hs.load_wordlist(wordlist=wordlist_json)
     else:
       wordlist = hs.load_wordlist(wordlist_path=WORDLIST_PATH)
@@ -96,7 +96,7 @@ def get_mimetype_scrublist():
 
   try:
     if MIMETYPES_PATH[:4] == "http":
-      mimetype_scrub_list = json.loads(urllib2.urlopen(MIMETYPES_PATH).read())
+      mimetype_scrub_list = json.loads(urlopen(MIMETYPES_PATH).read())
     else:
       with open(MIMETYPES_PATH, "r") as mimetypes_file:
         mimetype_scrub_list = json.load(mimetypes_file)
