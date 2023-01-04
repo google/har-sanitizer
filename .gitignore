@@ -10,3 +10,4 @@ lib/
 .ipynb*
 *.zip
 .DS_Store
+.idea/
